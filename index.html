@@ -1,631 +1,299 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이미지 URL 병합 도구</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        
-        .section {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: #f8f9fa;
-            border-radius: 15px;
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .step-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 50%;
-            font-size: 14px;
-            font-weight: 700;
-        }
-        
-        textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-            transition: border-color 0.3s;
-            background: white;
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        #htmlInput {
-            height: 200px;
-        }
-        
-        #urlInput {
-            height: 250px;
-        }
-        
-        .button-group {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-        }
-        
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            flex: 1;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-        
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-        
-        .btn-extract {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-extract:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
-        }
-        
-        #status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            display: none;
-        }
-        
-        .status-info {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .status-success {
-            background: #e8f5e9;
-            color: #388e3c;
-        }
-        
-        .status-error {
-            background: #ffebee;
-            color: #d32f2f;
-        }
-        
-        .status-warning {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-        
-        #preview {
-            margin-top: 30px;
-            display: none;
-        }
-        
-        #preview img {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 15px;
-            display: none;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .info-box {
-            background: white;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #666;
-            margin-top: 10px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .arrow-down {
-            text-align: center;
-            font-size: 24px;
-            color: #667eea;
-            margin: 15px 0;
-        }
-        
-        #imagePreviewContainer {
-            display: none;
-            margin-top: 20px;
-        }
-        
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .preview-item {
-            position: relative;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 10px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        
-        .preview-item:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .preview-item.excluded {
-            opacity: 0.4;
-            border-color: #ccc;
-        }
-        
-        .preview-item.excluded::after {
-            content: '제외됨';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .preview-item img {
-            width: 100%;
-            height: 120px;
-            object-fit: contain;
-            border-radius: 5px;
-        }
-        
-        .preview-item .url-text {
-            font-size: 11px;
-            color: #666;
-            margin-top: 8px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .preview-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .preview-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 6px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지 병합</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:sans-serif;background:#667eea;min-height:100vh;padding:20px}
+.container{max-width:900px;margin:0 auto;background:#fff;border-radius:10px;padding:30px}
+h1{color:#333;margin-bottom:5px;font-size:24px}
+.subtitle{color:#666;margin-bottom:20px;font-size:13px}
+.section{margin-bottom:20px;padding:20px;background:#f8f9fa;border-radius:10px}
+.section-title{font-size:16px;font-weight:600;color:#333;margin-bottom:10px}
+.step{display:inline-flex;width:24px;height:24px;background:#667eea;color:#fff;border-radius:50%;font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-right:5px}
+textarea{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:monospace;resize:vertical;background:#fff}
+textarea:focus{outline:none;border-color:#667eea}
+#htmlInput{height:180px}
+#urlInput{height:220px}
+.btn-group{margin-top:12px;display:flex;gap:8px}
+button{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-primary{background:#667eea;color:#fff;flex:1}
+.btn-primary:hover{background:#5568d3}
+.btn-secondary{background:#f0f0f0;color:#333}
+.btn-secondary:hover{background:#e0e0e0}
+.btn-extract{background:#28a745;color:#fff;flex:1}
+.btn-extract:hover{background:#218838}
+.btn-small{padding:6px 12px;font-size:12px}
+#status{margin-top:15px;padding:12px;border-radius:8px;display:none}
+.status-info{background:#e3f2fd;color:#1976d2}
+.status-success{background:#e8f5e9;color:#388e3c}
+.status-error{background:#ffebee;color:#d32f2f}
+.status-warning{background:#fff3e0;color:#f57c00}
+#preview{margin-top:20px;display:none}
+#preview img{width:100%;border-radius:8px}
+.progress-bar{width:100%;height:4px;background:#e0e0e0;border-radius:2px;overflow:hidden;margin-top:12px;display:none}
+.progress-fill{height:100%;background:#667eea;width:0%;transition:width .3s}
+.info{background:#fff;padding:10px;border-radius:6px;font-size:12px;color:#666;margin-top:8px;border-left:3px solid #667eea}
+.arrow{text-align:center;font-size:20px;color:#667eea;margin:10px 0}
+#imagePreviewContainer{display:none;margin-top:15px}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:12px}
+.preview-item{position:relative;background:#fff;border:2px solid #e0e0e0;border-radius:8px;padding:8px;cursor:pointer}
+.preview-item:hover{border-color:#667eea}
+.preview-item.excluded{opacity:.4;border-color:#ccc}
+.preview-item.excluded::after{content:'제외';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.preview-item img{width:100%;height:100px;object-fit:contain;border-radius:4px}
+.preview-item .url-text{font-size:10px;color:#666;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.preview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.preview-title{font-size:14px;font-weight:600;color:#333}
+.preview-actions{display:flex;gap:6px}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>🖼️ 이미지 URL 병합 도구</h1>
-        <p class="subtitle">HTML에서 이미지를 추출하고 하나의 긴 이미지로 합칩니다 (세로 병합)</p>
-        
-        <!-- STEP 1: HTML 입력 -->
-        <div class="section">
-            <div class="section-title">
-                <span class="step-number">1</span>
-                HTML 코드 입력
-            </div>
-            <textarea id="htmlInput" placeholder="HTML 코드를 붙여넣으세요&#10;&#10;예시:&#10;<img src='https://example.com/image1.jpg'>&#10;<img src='https://example.com/image2.png'>"></textarea>
-            <div class="button-group">
-                <button class="btn-extract" onclick="extractImages()">🔍 이미지 URL 추출하기</button>
-                <button class="btn-secondary" onclick="clearHtml()">🗑️ HTML 초기화</button>
-            </div>
-            <div class="info-box">
-                💡 &lt;img&gt; 태그의 src 속성에서 이미지 URL을 자동으로 찾아냅니다
-            </div>
-            
-            <!-- 이미지 미리보기 -->
-            <div id="imagePreviewContainer">
-                <div class="preview-header">
-                    <div class="preview-title">📸 추출된 이미지 미리보기</div>
-                    <div class="preview-actions">
-                        <button class="btn-secondary btn-small" onclick="selectAllImages()">✅ 전체 선택</button>
-                        <button class="btn-secondary btn-small" onclick="deselectAllImages()">❌ 전체 해제</button>
-                    </div>
-                </div>
-                <div class="preview-grid" id="previewGrid"></div>
-                <div class="info-box" style="margin-top: 15px;">
-                    ℹ️ 이미지를 클릭하면 병합에서 제외/포함할 수 있습니다
-                </div>
-            </div>
-        </div>
-        
-        <div class="arrow-down">⬇️</div>
-        
-        <!-- STEP 2: URL 확인/수정 -->
-        <div class="section">
-            <div class="section-title">
-                <span class="step-number">2</span>
-                이미지 URL 확인 및 수정
-            </div>
-            <textarea id="urlInput" placeholder="추출된 이미지 URL이 여기 표시됩니다&#10;&#10;직접 입력하거나 수정할 수도 있습니다&#10;한 줄에 하나씩 입력하세요"></textarea>
-            <div class="info-box">
-                ℹ️ 추출된 URL을 확인하고 필요시 수정하거나 추가할 수 있습니다
-            </div>
-        </div>
-        
-        <div class="arrow-down">⬇️</div>
-        
-        <!-- STEP 3: 이미지 병합 -->
-        <div class="section">
-            <div class="section-title">
-                <span class="step-number">3</span>
-                이미지 병합 실행
-            </div>
-            <div class="button-group">
-                <button class="btn-primary" onclick="mergeImages()">🔄 이미지 병합하기</button>
-                <button class="btn-secondary" onclick="clearAll()">🗑️ 전체 초기화</button>
-            </div>
-        </div>
-        
-        <div class="progress-bar" id="progressBar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        
-        <div id="status"></div>
-        
-        <div id="preview"></div>
-    </div>
+<div class="container">
+<h1>🖼️ 이미지 병합</h1>
+<p class="subtitle">HTML에서 이미지 추출 후 세로 병합</p>
 
-    <script>
-        let extractedUrls = [];
-        let excludedIndices = new Set();
-        
-        // HTML에서 이미지 URL 추출
-        function extractImages() {
-            const htmlInput = document.getElementById('htmlInput').value.trim();
-            const urlInput = document.getElementById('urlInput');
-            const previewContainer = document.getElementById('imagePreviewContainer');
-            const previewGrid = document.getElementById('previewGrid');
-            
-            if (!htmlInput) {
-                showStatus('⚠️ HTML 코드를 입력해주세요.', 'warning');
-                return;
-            }
-            
-            try {
-                // 임시 DOM 파서 생성
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlInput, 'text/html');
-                
-                // img 태그에서 src 추출
-                const images = doc.querySelectorAll('img');
-                const urls = [];
-                
-                images.forEach(img => {
-                    const src = img.getAttribute('src');
-                    if (src && src.trim()) {
-                        urls.push(src.trim());
-                    }
-                });
-                
-                if (urls.length === 0) {
-                    showStatus('⚠️ HTML에서 이미지 URL을 찾을 수 없습니다.', 'warning');
-                    return;
-                }
-                
-                // 전역 변수에 저장
-                extractedUrls = urls;
-                excludedIndices.clear();
-                
-                // URL 입력란에 채우기
-                updateUrlInput();
-                
-                // 미리보기 생성
-                previewGrid.innerHTML = '';
-                urls.forEach((url, index) => {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.dataset.index = index;
-                    previewItem.onclick = () => toggleImageSelection(index);
-                    
-                    previewItem.innerHTML = `
-                        <img src="${url}" alt="이미지 ${index + 1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22>로드 실패</text></svg>'">
-                        <div class="url-text" title="${url}">${url}</div>
-                    `;
-                    
-                    previewGrid.appendChild(previewItem);
-                });
-                
-                previewContainer.style.display = 'block';
-                
-                showStatus(`✅ ${urls.length}개의 이미지 URL을 추출했습니다!`, 'success');
-                
-                // 미리보기로 스크롤
-                previewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-            } catch (error) {
-                showStatus(`❌ HTML 파싱 오류: ${error.message}`, 'error');
-                console.error(error);
-            }
-        }
-        
-        // 이미지 선택/해제 토글
-        function toggleImageSelection(index) {
-            const previewItem = document.querySelector(`.preview-item[data-index="${index}"]`);
-            
-            if (excludedIndices.has(index)) {
-                excludedIndices.delete(index);
-                previewItem.classList.remove('excluded');
-            } else {
-                excludedIndices.add(index);
-                previewItem.classList.add('excluded');
-            }
-            
-            updateUrlInput();
-        }
-        
-        // 전체 선택
-        function selectAllImages() {
-            excludedIndices.clear();
-            document.querySelectorAll('.preview-item').forEach(item => {
-                item.classList.remove('excluded');
-            });
-            updateUrlInput();
-            showStatus('✅ 모든 이미지가 선택되었습니다.', 'success');
-        }
-        
-        // 전체 해제
-        function deselectAllImages() {
-            extractedUrls.forEach((_, index) => {
-                excludedIndices.add(index);
-            });
-            document.querySelectorAll('.preview-item').forEach(item => {
-                item.classList.add('excluded');
-            });
-            updateUrlInput();
-            showStatus('❌ 모든 이미지가 해제되었습니다.', 'info');
-        }
-        
-        // URL 입력란 업데이트
-        function updateUrlInput() {
-            const urlInput = document.getElementById('urlInput');
-            const selectedUrls = extractedUrls.filter((_, index) => !excludedIndices.has(index));
-            urlInput.value = selectedUrls.join('\n');
-        }
-        
-        // 이미지 병합
-        async function mergeImages() {
-            const input = document.getElementById('urlInput').value.trim();
-            const status = document.getElementById('status');
-            const preview = document.getElementById('preview');
-            const progressBar = document.getElementById('progressBar');
-            const progressFill = document.getElementById('progressFill');
-            
-            // 초기화
-            preview.style.display = 'none';
-            preview.innerHTML = '';
-            
-            // URL 파싱
-            const urls = input.split('\n')
-                .map(url => url.trim())
-                .filter(url => url.length > 0);
-            
-            if (urls.length === 0) {
-                showStatus('⚠️ 이미지 URL을 입력해주세요.', 'warning');
-                return;
-            }
-            
-            showStatus(`${urls.length}개의 이미지 다운로드 중...`, 'info');
-            progressBar.style.display = 'block';
-            
-            try {
-                // 이미지 다운로드
-                const images = [];
-                for (let i = 0; i < urls.length; i++) {
-                    const url = urls[i];
-                    
-                    const img = await loadImage(url);
-                    images.push(img);
-                    
-                    const progress = ((i + 1) / urls.length) * 100;
-                    progressFill.style.width = progress + '%';
-                    showStatus(`이미지 다운로드 중... (${i + 1}/${urls.length})`, 'info');
-                }
-                
-                showStatus('이미지 병합 중...', 'info');
-                
-                // 캔버스 생성
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // 최대 너비와 총 높이 계산
-                const maxWidth = Math.max(...images.map(img => img.width));
-                const totalHeight = images.reduce((sum, img) => sum + img.height, 0);
-                
-                canvas.width = maxWidth;
-                canvas.height = totalHeight;
-                
-                // 배경 흰색
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, maxWidth, totalHeight);
-                
-                // 이미지 붙이기
-                let currentY = 0;
-                for (const img of images) {
-                    const x = (maxWidth - img.width) / 2; // 중앙 정렬
-                    ctx.drawImage(img, x, currentY);
-                    currentY += img.height;
-                }
-                
-                // 결과 표시
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-                
-                preview.innerHTML = `
-                    <h3 style="margin-bottom: 15px; color: #333;">✅ 병합 완료!</h3>
-                    <p style="margin-bottom: 15px; color: #666;">크기: ${maxWidth} x ${totalHeight} px</p>
-                    <img src="${dataUrl}" alt="병합된 이미지">
-                    <button class="btn-primary" style="margin-top: 20px; width: 100%;" onclick="downloadImage('${dataUrl}')">
-                        💾 이미지 다운로드
-                    </button>
-                `;
-                preview.style.display = 'block';
-                
-                showStatus(`✅ ${images.length}개 이미지 병합 완료!`, 'success');
-                progressBar.style.display = 'none';
-                
-                // 결과로 스크롤
-                preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                
-            } catch (error) {
-                showStatus(`❌ 오류 발생: ${error.message}`, 'error');
-                progressBar.style.display = 'none';
-                console.error(error);
-            }
-        }
-        
-        function loadImage(url) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'Anonymous'; // CORS 처리
-                img.onload = () => resolve(img);
-                img.onerror = () => reject(new Error(`이미지 로드 실패: ${url}`));
-                img.src = url;
-            });
-        }
-        
-        function downloadImage(dataUrl) {
-            const link = document.createElement('a');
-            link.download = `merged_image_${Date.now()}.jpg`;
-            link.href = dataUrl;
-            link.click();
-        }
-        
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = `status-${type}`;
-            status.style.display = 'block';
-        }
-        
-        function clearHtml() {
-            document.getElementById('htmlInput').value = '';
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            document.getElementById('previewGrid').innerHTML = '';
-            extractedUrls = [];
-            excludedIndices.clear();
-            showStatus('HTML 입력란이 초기화되었습니다.', 'info');
-        }
-        
-        function clearAll() {
-            document.getElementById('htmlInput').value = '';
-            document.getElementById('urlInput').value = '';
-            document.getElementById('status').style.display = 'none';
-            document.getElementById('preview').style.display = 'none';
-            document.getElementById('progressBar').style.display = 'none';
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            document.getElementById('previewGrid').innerHTML = '';
-            extractedUrls = [];
-            excludedIndices.clear();
-            showStatus('모든 내용이 초기화되었습니다.', 'info');
-        }
-    </script>
+<div class="section">
+<div class="section-title"><span class="step">1</span>HTML 입력</div>
+<textarea id="htmlInput" placeholder="HTML 코드를 붙여넣으세요"></textarea>
+<div class="btn-group">
+<button class="btn-extract" onclick="extractImages()">🔍 추출</button>
+<button class="btn-secondary" onclick="clearHtml()">초기화</button>
+</div>
+<div class="info">💡 img 태그에서 자동 추출</div>
+
+<div id="imagePreviewContainer">
+<div class="preview-header">
+<div class="preview-title">📸 미리보기</div>
+<div class="preview-actions">
+<button class="btn-secondary btn-small" onclick="selectAllImages()">전체선택</button>
+<button class="btn-secondary btn-small" onclick="deselectAllImages()">전체해제</button>
+</div>
+</div>
+<div class="preview-grid" id="previewGrid"></div>
+<div class="info">ℹ️ 클릭하여 제외/포함</div>
+</div>
+</div>
+
+<div class="arrow">⬇️</div>
+
+<div class="section">
+<div class="section-title"><span class="step">2</span>URL 확인</div>
+<textarea id="urlInput" placeholder="추출된 URL (수정 가능)"></textarea>
+<div class="info">ℹ️ 직접 수정 가능</div>
+</div>
+
+<div class="arrow">⬇️</div>
+
+<div class="section">
+<div class="section-title"><span class="step">3</span>병합</div>
+<div class="btn-group">
+<button class="btn-primary" onclick="mergeImages()">🔄 병합</button>
+<button class="btn-secondary" onclick="clearAll()">전체초기화</button>
+</div>
+</div>
+
+<div class="progress-bar" id="progressBar">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+
+<div id="status"></div>
+<div id="preview"></div>
+</div>
+
+<script>
+let urls=[],excluded=new Set();
+
+// 네이버 썸네일 URL에서 실제 이미지 URL 추출
+function decodeNaverUrl(url){
+try{
+// dthumb-phinf.pstatic.net 형태의 URL 체크
+if(url.includes('dthumb-phinf.pstatic.net')||url.includes('phinf.pstatic.net')){
+// src= 파라미터 찾기
+const srcMatch=url.match(/[?&]src=([^&]+)/);
+if(srcMatch){
+let innerUrl=decodeURIComponent(srcMatch[1]);
+// 따옴표 제거
+innerUrl=innerUrl.replace(/^["']|["']$/g,'');
+// 재귀적으로 한 번 더 체크 (중첩된 경우)
+return decodeNaverUrl(innerUrl);
+}
+}
+return url;
+}catch(e){
+console.error('URL 디코딩 오류:',e);
+return url;
+}
+}
+
+function extractImages(){
+const html=document.getElementById('htmlInput').value.trim();
+if(!html){showStatus('⚠️ HTML을 입력하세요','warning');return}
+try{
+const doc=new DOMParser().parseFromString(html,'text/html');
+const imgs=doc.querySelectorAll('img');
+urls=[];
+imgs.forEach(img=>{
+let src=img.getAttribute('src');
+if(src&&src.trim()){
+src=src.trim();
+// 네이버 썸네일 URL 처리
+src=decodeNaverUrl(src);
+urls.push(src);
+}
+});
+if(!urls.length){showStatus('⚠️ 이미지를 찾을 수 없습니다','warning');return}
+excluded.clear();
+updateUrlInput();
+const grid=document.getElementById('previewGrid');
+grid.innerHTML='';
+urls.forEach((url,i)=>{
+const div=document.createElement('div');
+div.className='preview-item';
+div.dataset.index=i;
+div.onclick=()=>toggleImage(i);
+div.innerHTML=`<img src="${url}" alt="${i+1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22>실패</text></svg>'"><div class="url-text" title="${url}">${url}</div>`;
+grid.appendChild(div);
+});
+document.getElementById('imagePreviewContainer').style.display='block';
+const decodedCount=urls.filter(u=>u.includes('shop-phinf.pstatic.net')||u.includes('shopping.pstatic.net')).length;
+const msg=decodedCount>0?`✅ ${urls.length}개 추출 완료 (네이버 URL ${decodedCount}개 디코딩됨)`:`✅ ${urls.length}개 추출 완료`;
+showStatus(msg,'success');
+document.getElementById('imagePreviewContainer').scrollIntoView({behavior:'smooth',block:'center'});
+}catch(e){showStatus(`❌ 오류: ${e.message}`,'error')}
+}
+
+function toggleImage(i){
+const item=document.querySelector(`.preview-item[data-index="${i}"]`);
+if(excluded.has(i)){excluded.delete(i);item.classList.remove('excluded')}
+else{excluded.add(i);item.classList.add('excluded')}
+updateUrlInput();
+}
+
+function selectAllImages(){
+excluded.clear();
+document.querySelectorAll('.preview-item').forEach(item=>item.classList.remove('excluded'));
+updateUrlInput();
+showStatus('✅ 전체 선택','success');
+}
+
+function deselectAllImages(){
+urls.forEach((_,i)=>excluded.add(i));
+document.querySelectorAll('.preview-item').forEach(item=>item.classList.add('excluded'));
+updateUrlInput();
+showStatus('❌ 전체 해제','info');
+}
+
+function updateUrlInput(){
+const selected=urls.filter((_,i)=>!excluded.has(i));
+document.getElementById('urlInput').value=selected.join('\n');
+}
+
+async function mergeImages(){
+const input=document.getElementById('urlInput').value.trim();
+const preview=document.getElementById('preview');
+const bar=document.getElementById('progressBar');
+const fill=document.getElementById('progressFill');
+preview.style.display='none';
+preview.innerHTML='';
+const list=input.split('\n').map(u=>u.trim()).filter(u=>u);
+if(!list.length){showStatus('⚠️ URL을 입력하세요','warning');return}
+
+// 네이버 이미지가 있는지 확인
+const hasNaverImg=list.some(u=>u.includes('pstatic.net'));
+if(hasNaverImg){
+showStatus('ℹ️ 네이버 이미지 감지 - CORS 프록시 사용 중...','info');
+}
+
+showStatus(`${list.length}개 다운로드 중...`,'info');
+bar.style.display='block';
+try{
+const imgs=[];
+for(let i=0;i<list.length;i++){
+let url=list[i];
+// 네이버 이미지는 프록시 사용
+if(url.includes('pstatic.net')){
+url='https://corsproxy.io/?'+encodeURIComponent(url);
+}
+const img=await loadImage(url);
+imgs.push(img);
+fill.style.width=((i+1)/list.length*100)+'%';
+showStatus(`다운로드 중... (${i+1}/${list.length})`,'info');
+}
+showStatus('병합 중...','info');
+const canvas=document.createElement('canvas');
+const ctx=canvas.getContext('2d');
+const maxW=Math.max(...imgs.map(img=>img.width));
+const totalH=imgs.reduce((sum,img)=>sum+img.height,0);
+canvas.width=maxW;
+canvas.height=totalH;
+ctx.fillStyle='white';
+ctx.fillRect(0,0,maxW,totalH);
+let y=0;
+for(const img of imgs){
+const x=(maxW-img.width)/2;
+ctx.drawImage(img,x,y);
+y+=img.height;
+}
+const dataUrl=canvas.toDataURL('image/jpeg',.95);
+preview.innerHTML=`<h3 style="margin-bottom:10px;color:#333">✅ 완료!</h3><p style="margin-bottom:10px;color:#666">크기: ${maxW} x ${totalH} px</p><img src="${dataUrl}"><button class="btn-primary" style="margin-top:15px;width:100%" onclick="downloadImage('${dataUrl}')">💾 다운로드</button>`;
+preview.style.display='block';
+showStatus(`✅ ${imgs.length}개 병합 완료!`,'success');
+bar.style.display='none';
+preview.scrollIntoView({behavior:'smooth'});
+}catch(e){
+showStatus(`❌ 오류: ${e.message}. 일부 이미지는 CORS 제한으로 병합이 불가능할 수 있습니다.`,'error');
+bar.style.display='none';
+}
+}
+
+function loadImage(url){
+return new Promise((resolve,reject)=>{
+const img=new Image();
+img.crossOrigin='anonymous';
+img.onload=()=>resolve(img);
+img.onerror=()=>reject(new Error(`로드 실패: ${url.substring(0,50)}...`));
+img.src=url;
+});
+}
+
+function downloadImage(dataUrl){
+const a=document.createElement('a');
+a.download=`merged_${Date.now()}.jpg`;
+a.href=dataUrl;
+a.click();
+}
+
+function showStatus(msg,type){
+const s=document.getElementById('status');
+s.textContent=msg;
+s.className=`status-${type}`;
+s.style.display='block';
+}
+
+function clearHtml(){
+document.getElementById('htmlInput').value='';
+document.getElementById('imagePreviewContainer').style.display='none';
+document.getElementById('previewGrid').innerHTML='';
+urls=[];
+excluded.clear();
+showStatus('HTML 초기화','info');
+}
+
+function clearAll(){
+document.getElementById('htmlInput').value='';
+document.getElementById('urlInput').value='';
+document.getElementById('status').style.display='none';
+document.getElementById('preview').style.display='none';
+document.getElementById('progressBar').style.display='none';
+document.getElementById('imagePreviewContainer').style.display='none';
+document.getElementById('previewGrid').innerHTML='';
+urls=[];
+excluded.clear();
+showStatus('전체 초기화','info');
+}
+</script>
 </body>
 </html>
